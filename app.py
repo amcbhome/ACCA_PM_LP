@@ -10,7 +10,23 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Project Overview & Syllabus Context
 st.title("🧮 Operations & Logistics Optimization Suite")
+
+st.markdown(
+    """
+    This project transforms theoretical operations management concepts from the 
+    **ACCA (Association of Chartered Certified Accountants) Performance Management (PM)** and 
+    **Strategic Business Leader (SBL)** syllabi into dynamic, data-driven optimization tools using 
+    Python and the [PuLP Linear Programming Library](https://coin-or.github.io/pulp/). 
+    By decoupling static exam scenarios from rigid structures, the application introduces interactive 
+    data modeling that allows users to adjust real-world variables—such as production resource constraints 
+    (labour and materials) for the PM module or variable logistical dispatch targets across distribution networks 
+    for the SBL module. Developed and compiled within [Google Colab](https://colab.research.google.com/) 
+    and deployed seamlessly via a unified Streamlit framework, this suite bridges the gap between accounting 
+    theory and modern prescriptive business intelligence.
+    """
+)
 st.markdown("---")
 
 # Navigation Sidebar to switch between the two models
