@@ -89,6 +89,12 @@ elif app_mode == "SBL Depot Dispatch Optimizer":
     d2 = st.sidebar.number_input("Depot 2 Required Target:", min_value=0.0, value=3100.0, step=50.0)
     d3 = st.sidebar.number_input("Depot 3 Required Target:", min_value=0.0, value=1250.0, step=50.0)
     
+    total_requested = d1 + d2 + d3
+    
+    # Quick warning system for total systemic capacity boundaries
+    if total_requested > 7000:
+        st.sidebar.error(f"⚠️ Total requested allocation ({total_requested:,} units) exceeds maximum destination network capacity (7,000 units).")
+    
     if st.sidebar.button("Run Dispatch Optimization"):
         # Setup PuLP Minimization Problem
         sbl_model = pulp.LpProblem("Minimize_Z", pulp.LpMinimize)
@@ -123,27 +129,32 @@ elif app_mode == "SBL Depot Dispatch Optimizer":
         
         if status_str == "Optimal":
             st.success("System Status: Optimized successfully.")
-            st.metric(label="Minimum Total Cost (Z)", value=f"£{pulp.value(sbl_model.objective):,2f}")
             
+            # Key Summary Metrics (With the corrected syntax format string)
+            m_col1, m_col2 = st.columns(2)
+            m_col1.metric(label="Minimum Total Cost (Z)", value=f"£{pulp.value(sbl_model.objective):,.2f}")
+            m_col2.metric(label="Total Units Dispatched", value=f"{total_requested:,} Units")
+            
+            st.markdown("---")
             st.subheader("Optimal Route Allocation Matrix")
             
             # Formatted 3-Column Layout for clear viewing
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                st.info("**Depot 1 Direct Routes**")
+                st.info(f"**Depot 1 Routes**\nTarget: {d1:,}")
                 st.metric("Route X1 Allocation", f"{X[1].varValue:,.1f}")
                 st.metric("Route X2 Allocation", f"{X[2].varValue:,.1f}")
                 st.metric("Route X3 Allocation", f"{X[3].varValue:,.1f}")
                 
             with col2:
-                st.info("**Depot 2 Direct Routes**")
+                st.info(f"**Depot 2 Routes**\nTarget: {d2:,}")
                 st.metric("Route X4 Allocation", f"{X[4].varValue:,.1f}")
                 st.metric("Route X5 Allocation", f"{X[5].varValue:,.1f}")
                 st.metric("Route X6 Allocation", f"{X[6].varValue:,.1f}")
                 
             with col3:
-                st.info("**Depot 3 Direct Routes**")
+                st.info(f"**Depot 3 Routes**\nTarget: {d3:,}")
                 st.metric("Route X7 Allocation", f"{X[7].varValue:,.1f}")
                 st.metric("Route X8 Allocation", f"{X[8].varValue:,.1f}")
                 st.metric("Route X9 Allocation", f"{X[9].varValue:,.1f}")
