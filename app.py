@@ -57,17 +57,22 @@ if app_mode == "Product Mix (PM) Optimizer":
         if status_str == "Optimal":
             st.success(f"Solver Status: {status_str}")
             
+            # Convert values to clean integers
+            val_x = int(round(pulp.value(x)))
+            val_y = int(round(pulp.value(y)))
+            val_obj = int(round(pulp.value(pm_model.objective)))
+            
             # Display KPI Metric Cards
             col1, col2, col3 = st.columns(3)
-            col1.metric("Optimal x Units", f"{pulp.value(x):,}")
-            col2.metric("Optimal y Units", f"{pulp.value(y):,}")
-            col3.metric("Max Contribution (C)", f"£{pulp.value(pm_model.objective):,}")
+            col1.metric("Optimal x Units", f"{val_x:,d}")
+            col2.metric("Optimal y Units", f"{val_y:,d}")
+            col3.metric("Max Contribution (C)", f"£{val_obj:,d}")
             
             # Clear mathematical verification summary
             st.info(
-                f"**Verification:** Producing **{pulp.value(x):,}** units of x and **{pulp.value(y):,}** units of y "
-                f"utilizes {4*pulp.value(x) + 4*pulp.value(y):,} hours of labour and "
-                f"{3*pulp.value(x) + 5*pulp.value(y):,} units of material."
+                f"**Verification:** Producing **{val_x:,d}** units of x and **{val_y:,d}** units of y "
+                f"utilizes {int(round(4*val_x + 4*val_y)):,d} hours of labour and "
+                f"{int(round(3*val_x + 5*val_y)):,d} units of material."
             )
         else:
             st.error(f"Solver could not find an optimal solution. Status: {status_str}")
@@ -89,11 +94,11 @@ elif app_mode == "SBL Depot Dispatch Optimizer":
     d2 = st.sidebar.number_input("Depot 2 Required Target:", min_value=0.0, value=3100.0, step=50.0)
     d3 = st.sidebar.number_input("Depot 3 Required Target:", min_value=0.0, value=1250.0, step=50.0)
     
-    total_requested = d1 + d2 + d3
+    total_requested = int(round(d1 + d2 + d3))
     
     # Quick warning system for total systemic capacity boundaries
     if total_requested > 7000:
-        st.sidebar.error(f"⚠️ Total requested allocation ({total_requested:,} units) exceeds maximum destination network capacity (7,000 units).")
+        st.sidebar.error(f"⚠️ Total requested allocation ({total_requested:,d} units) exceeds maximum destination network capacity (7,000 units).")
     
     if st.sidebar.button("Run Dispatch Optimization"):
         # Setup PuLP Minimization Problem
@@ -130,10 +135,13 @@ elif app_mode == "SBL Depot Dispatch Optimizer":
         if status_str == "Optimal":
             st.success("System Status: Optimized successfully.")
             
-            # Key Summary Metrics (With the corrected syntax format string)
+            # Convert objective value to clean integer
+            val_z = int(round(pulp.value(sbl_model.objective)))
+            
+            # Key Summary Metrics
             m_col1, m_col2 = st.columns(2)
-            m_col1.metric(label="Minimum Total Cost (Z)", value=f"£{pulp.value(sbl_model.objective):,.2f}")
-            m_col2.metric(label="Total Units Dispatched", value=f"{total_requested:,} Units")
+            m_col1.metric(label="Minimum Total Cost (Z)", value=f"£{val_z:,d}")
+            m_col2.metric(label="Total Units Dispatched", value=f"{total_requested:,d} Units")
             
             st.markdown("---")
             st.subheader("Optimal Route Allocation Matrix")
@@ -142,22 +150,22 @@ elif app_mode == "SBL Depot Dispatch Optimizer":
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                st.info(f"**Depot 1 Routes**\nTarget: {d1:,}")
-                st.metric("Route X1 Allocation", f"{X[1].varValue:,.1f}")
-                st.metric("Route X2 Allocation", f"{X[2].varValue:,.1f}")
-                st.metric("Route X3 Allocation", f"{X[3].varValue:,.1f}")
+                st.info(f"**Depot 1 Routes**\nTarget: {int(round(d1)):,d}")
+                st.metric("Route X1 Allocation", f"{int(round(X[1].varValue)):,d}")
+                st.metric("Route X2 Allocation", f"{int(round(X[2].varValue)):,d}")
+                st.metric("Route X3 Allocation", f"{int(round(X[3].varValue)):,d}")
                 
             with col2:
-                st.info(f"**Depot 2 Routes**\nTarget: {d2:,}")
-                st.metric("Route X4 Allocation", f"{X[4].varValue:,.1f}")
-                st.metric("Route X5 Allocation", f"{X[5].varValue:,.1f}")
-                st.metric("Route X6 Allocation", f"{X[6].varValue:,.1f}")
+                st.info(f"**Depot 2 Routes**\nTarget: {int(round(d2)):,d}")
+                st.metric("Route X4 Allocation", f"{int(round(X[4].varValue)):,d}")
+                st.metric("Route X5 Allocation", f"{int(round(X[5].varValue)):,d}")
+                st.metric("Route X6 Allocation", f"{int(round(X[6].varValue)):,d}")
                 
             with col3:
-                st.info(f"**Depot 3 Routes**\nTarget: {d3:,}")
-                st.metric("Route X7 Allocation", f"{X[7].varValue:,.1f}")
-                st.metric("Route X8 Allocation", f"{X[8].varValue:,.1f}")
-                st.metric("Route X9 Allocation", f"{X[9].varValue:,.1f}")
+                st.info(f"**Depot 3 Routes**\nTarget: {int(round(d3)):,d}")
+                st.metric("Route X7 Allocation", f"{int(round(X[7].varValue)):,d}")
+                st.metric("Route X8 Allocation", f"{int(round(X[8].varValue)):,d}")
+                st.metric("Route X9 Allocation", f"{int(round(X[9].varValue)):,d}")
         else:
             st.error(
                 f"Optimization failed. The input distribution criteria cannot be balanced against "
